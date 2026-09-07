@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Adzopé Livraison — Vos colis et courses livrés à moto</title>
+<meta name="description" content="Adzopé Livraison connecte les habitants d'Adzopé, Côte d'Ivoire, à des livreurs moto disponibles pour leurs colis et courses du quotidien.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --nuit:#12141c;
+    --nuit-2:#191c26;
+    --orange:#ff6b00;
+    --orange-soft:#ffb27a;
+    --vert:#2bb673;
+    --creme:#f4efe6;
+    --grise:#9aa0b0;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--nuit);
+    color:var(--creme);
+    font-family:'Inter',sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:'Space Grotesk',sans-serif;
+    margin:0;
+    color:#fff;
+  }
+  a{color:inherit;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+
+  header{
+    position:sticky;top:0;z-index:20;
+    background:rgba(18,20,28,.85);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .nav{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 24px;max-width:1080px;margin:0 auto;
+  }
+  .brand{
+    display:flex;align-items:center;gap:10px;
+    font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;color:#fff;
+  }
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--orange);}
+  .nav a.cta{
+    background:var(--orange);color:#fff;text-decoration:none;
+    padding:10px 20px;border-radius:8px;font-weight:600;font-size:14px;
+  }
+
+  .hero{
+    padding:76px 0 60px;
+    display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;
+  }
+  .hero h1{font-size:clamp(34px,5vw,54px);line-height:1.08;letter-spacing:-.01em;}
+  .hero h1 em{color:var(--orange);font-style:normal;}
+  .hero p.lead{
+    color:var(--grise);font-size:17px;max-width:44ch;margin-top:20px;
+  }
+  .hero-actions{display:flex;gap:14px;margin-top:32px;flex-wrap:wrap;}
+  .btn-primary{
+    background:var(--orange);color:#fff;text-decoration:none;
+    padding:14px 26px;border-radius:10px;font-weight:600;font-size:15px;
+    display:inline-block;
+  }
+  .btn-ghost{
+    border:1px solid rgba(255,255,255,.18);color:#fff;text-decoration:none;
+    padding:14px 26px;border-radius:10px;font-weight:600;font-size:15px;
+    display:inline-block;
+  }
+
+  .route-card{
+    background:var(--nuit-2);
+    border:1px solid rgba(255,255,255,.07);
+    border-radius:20px;padding:28px;
+  }
+  .route-card svg{width:100%;height:auto;display:block;}
+  .route-label{
+    display:flex;justify-content:space-between;font-size:13px;color:var(--grise);margin-top:14px;
+  }
+
+  section{padding:64px 0;}
+  .section-title{font-size:clamp(24px,3.4vw,32px);max-width:26ch;}
+  .section-sub{color:var(--grise);margin-top:12px;max-width:56ch;font-size:15.5px;}
+
+  .steps{
+    margin-top:40px;
+    display:grid;grid-template-columns:repeat(3,1fr);gap:28px;
+  }
+  .step{
+    border-top:2px solid rgba(255,255,255,.1);
+    padding-top:18px;
+  }
+  .step .num{
+    font-family:'Space Grotesk',sans-serif;color:var(--orange);font-weight:600;font-size:14px;
+  }
+  .step h3{font-size:19px;margin-top:8px;}
+  .step p{color:var(--grise);font-size:14.5px;margin-top:8px;}
+
+  .split{
+    display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;
+  }
+  .zone-list{
+    list-style:none;padding:0;margin:22px 0 0;
+    display:grid;grid-template-columns:1fr 1fr;gap:10px 20px;
+  }
+  .zone-list li{
+    color:var(--creme);font-size:14.5px;
+    padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .zone-card{
+    background:var(--nuit-2);border:1px solid rgba(255,255,255,.07);
+    border-radius:20px;padding:30px;
+  }
+  .stat{display:flex;gap:28px;margin-top:6px;}
+  .stat b{font-family:'Space Grotesk',sans-serif;font-size:28px;color:var(--vert);display:block;}
+  .stat span{color:var(--grise);font-size:13px;}
+
+  .cta-band{
+    background:linear-gradient(135deg,var(--orange) 0%,#e0501a 100%);
+    border-radius:24px;padding:52px 40px;text-align:center;
+  }
+  .cta-band h2{color:#fff;font-size:clamp(22px,3.4vw,30px);}
+  .cta-band p{color:rgba(255,255,255,.85);margin-top:10px;font-size:15.5px;}
+  .cta-band .btn-primary{background:#fff;color:var(--nuit);margin-top:22px;}
+
+  footer{
+    border-top:1px solid rgba(255,255,255,.06);padding:36px 0;
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;
+    color:var(--grise);font-size:13.5px;
+  }
+  footer a{text-decoration:none;color:var(--grise);}
+  footer a:hover{color:var(--creme);}
+
+  @media (max-width:820px){
+    .hero{grid-template-columns:1fr;padding-top:48px;}
+    .steps{grid-template-columns:1fr;}
+    .split{grid-template-columns:1fr;}
+    .zone-list{grid-template-columns:1fr;}
+  }
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <div class="brand"><span class="dot"></span>Adzopé Livraison</div>
+    <a class="cta" href="#contact">Nous contacter</a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <div>
+      <h1>Un colis à envoyer,<br>une course à faire —<br><em>un livreur à moto s'en charge.</em></h1>
+      <p class="lead">Adzopé Livraison connecte les habitants d'Adzopé à un réseau de livreurs moto disponibles, pour vos colis et vos achats du quotidien, suivis en temps réel jusqu'à leur destination.</p>
+      <div class="hero-actions">
+        <a class="btn-primary" href="#comment">Comment ça marche</a>
+        <a class="btn-ghost" href="#contact">Devenir livreur</a>
+      </div>
+    </div>
+
+    <div class="route-card">
+      <svg viewBox="0 0 340 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M28 176 C 90 176, 70 70, 150 70 S 230 150, 300 44" stroke="#ff6b00" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 14"/>
+        <circle cx="28" cy="176" r="7" fill="#2bb673"/>
+        <circle cx="300" cy="44" r="7" fill="#ff6b00"/>
+        <circle cx="150" cy="70" r="4" fill="#f4efe6" opacity=".5"/>
+        <text x="20" y="200" fill="#9aa0b0" font-family="Inter" font-size="12">Point de départ</text>
+        <text x="222" y="30" fill="#9aa0b0" font-family="Inter" font-size="12">Livraison</text>
+      </svg>
+      <div class="route-label">
+        <span>Adzopé, quartier Résidentiel</span>
+        <span>≈ 18 min</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="comment">
+    <h2 class="section-title">Trois étapes, du départ à l'arrivée</h2>
+    <p class="section-sub">Le même parcours pour un colis à envoyer ou une course à faire livrer.</p>
+    <div class="steps">
+      <div class="step">
+        <span class="num">01</span>
+        <h3>Vous décrivez la course</h3>
+        <p>Point de départ, destination, et ce qui doit être transporté ou acheté.</p>
+      </div>
+      <div class="step">
+        <span class="num">02</span>
+        <h3>Un livreur accepte</h3>
+        <p>Le livreur disponible le plus proche est notifié et prend la course en charge.</p>
+      </div>
+      <div class="step">
+        <span class="num">03</span>
+        <h3>Vous suivez, il livre</h3>
+        <p>Position en temps réel jusqu'à la remise en main propre au destinataire.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="zones">
+    <div class="split">
+      <div>
+        <h2 class="section-title">Un service pensé pour Adzopé</h2>
+        <p class="section-sub">Le réseau de livreurs couvre les principaux quartiers de la ville, avec des tarifs calculés selon la distance entre le départ et l'arrivée.</p>
+        <div class="stat">
+          <div><b>35+</b><span>quartiers couverts</span></div>
+          <div><b>2</b><span>types de courses : colis, achats</span></div>
+        </div>
+      </div>
+      <div class="zone-card">
+        <ul class="zone-list">
+          <li>Résidentiel</li>
+          <li>Commercial</li>
+          <li>Dokora</li>
+          <li>Akoupé-Zeudji</li>
+          <li>Yakassé-Attobrou</li>
+          <li>Bécédi-Brignan</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="cta-band">
+      <h2>Envie de livrer avec nous, ou de nous écrire ?</h2>
+      <p>Livreurs, partenaires, ou simple question — l'équipe Adzopé Livraison vous répond.</p>
+      <a class="btn-primary" href="mailto:contact@adzopelivraison.ci">contact@adzopelivraison.ci</a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  <span>© 2026 Adzopé Livraison — Abidjan, Côte d'Ivoire</span>
+  <a href="https://github.com/ipbgeo" target="_blank" rel="noopener">github.com/ipbgeo</a>
+</footer>
+
+</body>
+</html>
