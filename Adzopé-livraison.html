@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Adzopé Livraison — Vos colis et courses livrés à moto</title>
+<meta name="description" content="Adzopé Livraison connecte les habitants d'Adzopé, Côte d'Ivoire, à des livreurs moto disponibles pour leurs colis et courses du quotidien.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+  :root{
+    --orange:#ff6b00;
+    --orange-fonce:#e05a00;
+    --orange-clair:#fff1e6;
+    --encre:#181611;
+    --encre-2:#2a251d;
+    --creme:#fffaf4;
+    --vert:#1f9d63;
+    --rouge:#d3392f;
+    --gris:#786f61;
+    --ligne:rgba(24,22,17,.1);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--creme);color:var(--encre);
+    font-family:'Inter',sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Space Grotesk',sans-serif;margin:0;color:var(--encre);letter-spacing:-.01em;}
+  a{color:inherit;}
+  button{font-family:inherit;}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 24px;}
+  :focus-visible{outline:3px solid var(--encre);outline-offset:2px;}
+
+  /* Header */
+  header{position:sticky;top:0;z-index:40;background:rgba(255,250,244,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--ligne);}
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;max-width:1140px;margin:0 auto;}
+  .brand{display:flex;align-items:center;gap:9px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;}
+  .brand .badge{width:32px;height:32px;border-radius:10px;background:var(--orange);display:flex;align-items:center;justify-content:center;}
+  .nav-links{display:flex;align-items:center;gap:26px;}
+  .nav-links a.text-link{font-size:14.5px;font-weight:600;text-decoration:none;color:var(--encre);}
+  .nav-actions{display:flex;align-items:center;gap:12px;}
+  .btn-text{background:none;border:none;font-weight:600;font-size:14.5px;cursor:pointer;color:var(--encre);padding:10px 6px;}
+  .btn-solid{background:var(--encre);color:#fff;border:none;text-decoration:none;padding:11px 20px;border-radius:100px;font-weight:600;font-size:14.5px;cursor:pointer;}
+  .user-chip{display:none;align-items:center;gap:8px;background:var(--orange-clair);padding:7px 8px 7px 14px;border-radius:100px;font-weight:600;font-size:13.5px;color:var(--orange-fonce);}
+  .user-chip .av{width:26px;height:26px;border-radius:50%;background:var(--orange);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;}
+  .menu-toggle{display:none;background:none;border:none;cursor:pointer;padding:6px;}
+
+  /* Hero */
+  .hero-band{background:linear-gradient(180deg,#fff1e6 0%,var(--creme) 78%);position:relative;overflow:hidden;}
+  .hero-band::after{content:"";position:absolute;right:-140px;top:-180px;width:460px;height:460px;border-radius:50%;background:#ffe0c4;opacity:.7;}
+  .hero{position:relative;z-index:1;padding:56px 0 68px;text-align:center;}
+  .eyebrow-pill{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--ligne);padding:8px 16px;border-radius:100px;font-weight:600;font-size:13px;color:var(--orange-fonce);box-shadow:0 6px 16px -10px rgba(24,22,17,.3);}
+  .eyebrow-pill .pt{width:7px;height:7px;border-radius:50%;background:var(--vert);}
+  .hero h1{font-size:clamp(30px,5vw,52px);line-height:1.08;margin:22px auto 0;max-width:16ch;}
+  .hero p.lead{color:var(--gris);font-size:16.5px;max-width:48ch;margin:16px auto 0;}
+
+  /* Barre d'adresse type Glovo */
+  .address-bar{
+    margin:34px auto 0;max-width:760px;background:#fff;border-radius:22px;
+    box-shadow:0 26px 50px -22px rgba(24,22,17,.28);border:1px solid var(--ligne);
+    display:flex;align-items:stretch;padding:8px;gap:6px;
+  }
+  .address-field{flex:1;display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:16px;text-align:left;cursor:pointer;background:none;border:none;}
+  .address-field:hover{background:#faf6f0;}
+  .address-field .ic{width:34px;height:34px;border-radius:10px;background:var(--orange-clair);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .address-field .txt small{display:block;color:var(--gris);font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.02em;}
+  .address-field select{border:none;background:none;font-family:'Inter';font-weight:600;font-size:14.5px;color:var(--encre);padding:0;margin-top:1px;appearance:none;width:100%;cursor:pointer;}
+  .address-sep{width:1px;background:var(--ligne);margin:8px 0;}
+  .address-go{flex-shrink:0;background:var(--orange);color:#fff;border:none;border-radius:16px;padding:0 26px;font-weight:700;font-size:14.5px;cursor:pointer;}
+  .hero-quick{display:flex;justify-content:center;gap:22px;margin-top:22px;flex-wrap:wrap;}
+  .hero-quick div{font-size:13.5px;font-weight:600;color:var(--gris);}
+
+  /* Sections communes */
+  section{padding:66px 0;}
+  .eyebrow-row{display:flex;align-items:baseline;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+  .section-title{font-size:clamp(23px,3.2vw,30px);max-width:22ch;}
+  .section-sub{color:var(--gris);margin-top:10px;max-width:52ch;font-size:15px;}
+
+  /* Categories */
+  .cat-grid{margin-top:34px;display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  .cat-card{border-radius:20px;padding:26px 22px;min-height:180px;display:flex;flex-direction:column;justify-content:space-between;transition:transform .15s ease;cursor:pointer;border:none;text-align:left;font-family:inherit;}
+  .cat-card:hover{transform:translateY(-3px);}
+  .icon-tile{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;}
+  .cat-card h3{font-size:17.5px;margin-top:14px;color:inherit;}
+  .cat-card p{font-size:13.5px;margin-top:6px;opacity:.75;}
+  .cat-card.c1{background:var(--orange);color:#fff;}
+  .cat-card.c1 .icon-tile{background:rgba(255,255,255,.18);}
+  .cat-card.c2{background:#fff;border:1px solid var(--ligne);color:var(--encre);}
+  .cat-card.c2 .icon-tile{background:var(--orange-clair);}
+  .cat-card.c3{background:var(--encre);color:var(--creme);}
+  .cat-card.c3 .icon-tile{background:rgba(255,255,255,.1);}
+
+  /* Steps */
+  .steps{margin-top:36px;display:grid;grid-template-columns:repeat(3,1fr);gap:0;}
+  .step{padding:0 24px 0 24px;border-right:1px solid var(--ligne);}
+  .step:first-child{padding-left:0;}
+  .step:last-child{border-right:none;padding-right:0;}
+  .step .num{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:32px;color:var(--orange);}
+  .step h3{font-size:17px;margin-top:10px;}
+  .step p{color:var(--gris);font-size:14px;margin-top:8px;}
+
+  /* Zones + simulateur */
+  .stat-row{display:flex;gap:36px;margin-top:24px;flex-wrap:wrap;}
+  .stat-row b{font-family:'Space Grotesk',sans-serif;font-size:28px;color:var(--orange);display:block;}
+  .stat-row span{color:var(--gris);font-size:13px;}
+  .map-calc-grid{margin-top:34px;display:grid;grid-template-columns:1.15fr .85fr;gap:22px;align-items:start;}
+  .map-card{background:#fff;border:1px solid var(--ligne);border-radius:20px;padding:18px;}
+  #quartiers-map{width:100%;height:420px;border-radius:14px;background:var(--orange-clair);z-index:1;}
+  .map-hint{color:var(--gris);font-size:13px;margin:14px 2px 2px;text-align:center;}
+
+  .calc-card{background:var(--encre);color:var(--creme);border-radius:20px;padding:26px 24px;}
+  .calc-card h3{color:var(--creme);font-size:18px;margin-bottom:14px;}
+  .field-label{display:block;font-size:12.5px;color:rgba(255,250,244,.6);margin:14px 0 6px;}
+  .field-label:first-of-type{margin-top:0;}
+  .q-select{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,250,244,.18);background:rgba(255,250,244,.06);color:var(--creme);font-family:'Inter';font-size:14px;appearance:none;}
+  .q-select:focus-visible{outline:2px solid var(--orange);outline-offset:2px;}
+  .calc-result{margin-top:20px;background:rgba(255,250,244,.06);border-radius:14px;padding:16px 18px;}
+  .calc-result-row{display:flex;justify-content:space-between;align-items:baseline;font-size:13.5px;color:rgba(255,250,244,.7);}
+  .calc-result-row b{font-family:'Space Grotesk',sans-serif;color:var(--orange);font-size:22px;}
+  .calc-note{color:rgba(255,250,244,.55);font-size:12.5px;margin-top:12px;line-height:1.5;}
+  .btn-block{margin-top:16px;width:100%;padding:13px 14px;border-radius:10px;border:1.5px solid var(--orange);background:transparent;color:var(--orange);font-weight:700;font-size:14px;cursor:pointer;}
+  .btn-block:hover{background:rgba(255,107,0,.08);}
+  .link-inline{color:var(--orange);font-weight:600;text-decoration:none;font-size:13px;}
+
+  /* CTA */
+  .cta-band{background:var(--orange);border-radius:26px;padding:52px 44px;display:grid;grid-template-columns:1.2fr .8fr;gap:28px;align-items:center;}
+  .cta-band h2{color:#fff;font-size:clamp(21px,3vw,29px);max-width:17ch;}
+  .cta-band p{color:rgba(255,255,255,.85);margin-top:10px;font-size:14.5px;max-width:40ch;}
+  .cta-band .actions{display:flex;gap:12px;flex-wrap:wrap;}
+  .btn-white{background:#fff;color:var(--orange-fonce);text-decoration:none;padding:14px 24px;border-radius:100px;font-weight:700;font-size:14.5px;display:inline-block;}
+  .btn-outline-w{border:1.5px solid #fff;color:#fff;text-decoration:none;padding:14px 24px;border-radius:100px;font-weight:700;font-size:14.5px;display:inline-block;}
+
+  footer{padding:36px 0 46px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;color:var(--gris);font-size:13.5px;}
+  footer a{text-decoration:none;color:var(--gris);}
+  footer a:hover{color:var(--encre);}
+
+  /* Modal générique */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(24,22,17,.55);z-index:100;align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:#fff;border-radius:22px;padding:30px 28px;max-width:400px;width:100%;position:relative;max-height:90vh;overflow-y:auto;}
+  .modal h3{font-size:20px;}
+  .modal p.sub{color:var(--gris);font-size:14px;margin-top:6px;}
+  .modal-close{position:absolute;top:16px;right:18px;background:none;border:none;color:var(--gris);font-size:22px;cursor:pointer;line-height:1;}
+  .modal input,.modal select{width:100%;padding:13px 14px;border-radius:10px;border:1px solid var(--ligne);background:var(--creme);font-family:'Inter';font-size:14.5px;margin-top:6px;}
+  .modal label{display:block;font-size:12.5px;color:var(--gris);font-weight:600;margin-top:16px;}
+  .modal label:first-of-type{margin-top:18px;}
+  .modal .btn-primary-block{margin-top:22px;width:100%;padding:14px;border-radius:12px;border:none;background:var(--orange);color:#fff;font-weight:700;font-size:15px;cursor:pointer;}
+  .modal .btn-primary-block:hover{background:var(--orange-fonce);}
+  .modal .msg{margin-top:14px;font-size:13px;color:var(--gris);text-align:center;}
+  .modal .step-back{background:none;border:none;color:var(--gris);font-size:13px;font-weight:600;cursor:pointer;margin-top:12px;padding:0;}
+
+  @media (max-width:860px){
+    .nav-links{display:none;}
+    .address-bar{flex-direction:column;border-radius:20px;}
+    .address-sep{display:none;}
+    .address-go{margin-top:6px;padding:14px;}
+    .cat-grid{grid-template-columns:1fr;}
+    .steps{grid-template-columns:1fr;gap:26px;}
+    .step{border-right:none;border-top:1px solid var(--ligne);padding:20px 0 0;}
+    .step:first-child{border-top:none;padding-top:0;}
+    .map-calc-grid{grid-template-columns:1fr;}
+    .cta-band{grid-template-columns:1fr;padding:36px 24px;}
+    .menu-toggle{display:block;}
+  }
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;} .cat-card{transition:none;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <div class="brand">
+      <span class="badge"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 17 L10 8 L14 13 L20 5" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      Adzopé Livraison
+    </div>
+    <div class="nav-links">
+      <a class="text-link" href="#services">Services</a>
+      <a class="text-link" href="#comment">Comment ça marche</a>
+      <a class="text-link" href="#zones">Zones &amp; tarifs</a>
+    </div>
+    <div class="nav-actions">
+      <button type="button" class="btn-text" id="login-open-link">Se connecter</button>
+      <button type="button" class="btn-solid" id="order-open-link-top">Commander</button>
+      <span class="user-chip" id="user-chip"><span class="av" id="user-av">?</span><span id="user-name">—</span></span>
+    </div>
+  </div>
+</header>
+
+<div class="hero-band">
+  <div class="wrap hero">
+    <span class="eyebrow-pill"><span class="pt"></span>Disponible à Adzopé, Côte d'Ivoire</span>
+    <h1>Ça se livre à moto, ça arrive vite.</h1>
+    <p class="lead">Un colis, des courses, des achats de marché — décrivez le trajet, un livreur moto disponible s'en occupe et vous suivez la livraison en direct.</p>
+
+    <div class="address-bar">
+      <button type="button" class="address-field" id="field-depart">
+        <span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="#ff6b00" stroke-width="2"/><circle cx="12" cy="12" r="2.6" fill="#ff6b00"/></svg></span>
+        <span class="txt"><small>Départ</small><select id="hero-depart"></select></span>
+      </button>
+      <div class="address-sep"></div>
+      <button type="button" class="address-field" id="field-arrivee">
+        <span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-6.1 7-11.6C19 5.3 15.9 3 12 3S5 5.3 5 9.4C5 14.9 12 21 12 21Z" stroke="#ff6b00" stroke-width="2"/></svg></span>
+        <span class="txt"><small>Arrivée</small><select id="hero-arrivee"></select></span>
+      </button>
+      <button type="button" class="address-go" id="hero-go-btn">Voir le tarif</button>
+    </div>
+
+    <div class="hero-quick">
+      <div>Tarif calculé au trajet</div>
+      <div>Suivi en direct dans l'app</div>
+      <div>Paiement à la livraison</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <section id="services">
+    <div class="eyebrow-row">
+      <h2 class="section-title">Deux façons de nous faire courir</h2>
+      <p class="section-sub">Même service, même réseau de livreurs — le type de course change juste ce qu'on transporte.</p>
+    </div>
+    <div class="cat-grid">
+      <button type="button" class="cat-card c1" data-type="colis">
+        <div class="icon-tile"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3 4 7v10l8 4 8-4V7l-8-4Z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M4 7l8 4 8-4M12 11v10" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+        <div><h3>Colis &amp; documents</h3><p>D'un point à l'autre de la ville, remis en main propre.</p></div>
+      </button>
+      <button type="button" class="cat-card c2" data-type="achat">
+        <div class="icon-tile"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 8h12l-1.4 10.2a2 2 0 0 1-2 1.8H9.4a2 2 0 0 1-2-1.8L6 8Z" stroke="#181611" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 8V6a3 3 0 0 1 6 0v2" stroke="#181611" stroke-width="1.8"/></svg></div>
+        <div><h3>Courses &amp; achats</h3><p>Marché, pharmacie, boutique — le livreur achète et livre.</p></div>
+      </button>
+      <div class="cat-card c3">
+        <div class="icon-tile"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="#ff6b00" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+        <div><h3>Livreur le plus proche</h3><p>Recherche automatique élargie si personne n'est disponible tout près.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="comment">
+    <h2 class="section-title">Du départ à l'arrivée, sans détour</h2>
+    <div class="steps">
+      <div class="step"><div class="num">1</div><h3>Vous décrivez la course</h3><p>Point de départ, destination, et ce qui doit être transporté ou acheté.</p></div>
+      <div class="step"><div class="num">2</div><h3>Un livreur accepte</h3><p>Le livreur disponible le plus proche est notifié et prend la course en charge.</p></div>
+      <div class="step"><div class="num">3</div><h3>Vous suivez, il livre</h3><p>Position en temps réel jusqu'à la remise en main propre au destinataire.</p></div>
+    </div>
+  </section>
+
+  <section id="zones">
+    <div class="eyebrow-row">
+      <h2 class="section-title">Un réseau qui connaît Adzopé par cœur</h2>
+      <p class="section-sub">Le tarif est fixé pour chaque trajet entre deux quartiers, à l'avance.</p>
+    </div>
+    <div class="stat-row">
+      <div><b id="stat-zones">—</b><span>quartiers couverts</span></div>
+      <div><b>2</b><span>types de courses</span></div>
+    </div>
+
+    <div class="map-calc-grid">
+      <div class="map-card">
+        <div id="quartiers-map" role="img" aria-label="Carte des quartiers d'Adzopé couverts par le service de livraison"></div>
+        <p id="map-hint" class="map-hint">Cliquez un quartier pour le choisir comme départ, puis un second comme arrivée.</p>
+      </div>
+
+      <div class="calc-card">
+        <h3>Simulateur de tarif</h3>
+        <label for="type-select">Type de course</label>
+        <select id="type-select" class="q-select">
+          <option value="colis">Colis &amp; documents</option>
+          <option value="achat">Courses &amp; achats</option>
+        </select>
+        <label for="depart-select">Quartier de départ</label>
+        <select id="depart-select" class="q-select"></select>
+        <label for="arrivee-select">Quartier d'arrivée</label>
+        <select id="arrivee-select" class="q-select"></select>
+
+        <div class="calc-result">
+          <div class="calc-result-row"><span>Tarif</span><b id="calc-price">—</b></div>
+        </div>
+        <p class="calc-note" id="calc-note"></p>
+
+        <button type="button" class="btn-block" id="order-open-link-calc">Commander ce trajet</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="cta-band">
+      <div>
+        <h2>Envie de livrer avec nous, ou de nous écrire ?</h2>
+        <p>Livreurs, partenaires, ou simple question — l'équipe Adzopé Livraison vous répond.</p>
+      </div>
+      <div class="actions">
+        <a class="btn-white" href="mailto:adzopelivraison@gmail.com">Nous écrire</a>
+        <a class="btn-outline-w" href="mailto:adzopelivraison@gmail.com?subject=Devenir%20livreur">Devenir livreur</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  <span>© 2026 Adzopé Livraison — Abidjan, Côte d'Ivoire</span>
+  <a href="https://github.com/ipbgeo" target="_blank" rel="noopener">github.com/ipbgeo</a>
+</footer>
+
+<!-- Modal Connexion / Commande (flux unique : téléphone -> OTP -> nom -> trajet -> confirmation) -->
+<div class="modal-overlay" id="auth-modal" aria-hidden="true">
+  <div class="modal">
+    <button type="button" class="modal-close" id="auth-modal-close" aria-label="Fermer">&times;</button>
+
+    <div id="auth-step-phone">
+      <h3>Se connecter</h3>
+      <p class="sub">Recevez un code par SMS pour accéder à votre compte Adzopé Livraison.</p>
+      <label for="modal-tel">Numéro de téléphone</label>
+      <input type="tel" id="modal-tel" placeholder="07 00 00 00 00">
+      <button type="button" class="btn-primary-block" id="modal-send-otp-btn">Recevoir mon code</button>
+      <p class="msg" id="auth-msg-phone"></p>
+    </div>
+
+    <div id="auth-step-otp" style="display:none;">
+      <h3>Entrez le code</h3>
+      <p class="sub" id="auth-otp-sub">Code envoyé par SMS.</p>
+      <label for="modal-nom">Votre nom</label>
+      <input type="text" id="modal-nom" placeholder="Nom et prénom">
+      <label for="modal-otp">Code reçu par SMS</label>
+      <input type="text" id="modal-otp" placeholder="123456" maxlength="6">
+      <button type="button" class="btn-primary-block" id="modal-verify-btn">Confirmer</button>
+      <button type="button" class="step-back" id="auth-back-btn">← Changer de numéro</button>
+      <p class="msg" id="auth-msg-otp"></p>
+    </div>
+
+    <div id="auth-step-order" style="display:none;">
+      <h3>Confirmer la commande</h3>
+      <p class="sub" id="order-summary-txt">—</p>
+      <button type="button" class="btn-primary-block" id="modal-confirm-order-btn">Envoyer la commande</button>
+      <p class="msg" id="auth-msg-order"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var API_BASE_URL = 'https://adzope-livraison-api.onrender.com';
+
+  var QUARTIERS = [];
+  var TARIFS = {};
+  var map, markers = [];
+  var session = { accessToken: null, user: null };
+  var pendingOrderType = 'colis';
+
+  /* ---------- Élements ---------- */
+  var typeSelect = document.getElementById('type-select');
+  var departSelect = document.getElementById('depart-select');
+  var arriveeSelect = document.getElementById('arrivee-select');
+  var heroDepart = document.getElementById('hero-depart');
+  var heroArrivee = document.getElementById('hero-arrivee');
+  var priceOut = document.getElementById('calc-price');
+  var noteOut = document.getElementById('calc-note');
+  var mapHint = document.getElementById('map-hint');
+  var statZones = document.getElementById('stat-zones');
+
+  var authModal = document.getElementById('auth-modal');
+  var stepPhone = document.getElementById('auth-step-phone');
+  var stepOtp = document.getElementById('auth-step-otp');
+  var stepOrder = document.getElementById('auth-step-order');
+  var modalTel = document.getElementById('modal-tel');
+  var modalNom = document.getElementById('modal-nom');
+  var modalOtp = document.getElementById('modal-otp');
+  var msgPhone = document.getElementById('auth-msg-phone');
+  var msgOtp = document.getElementById('auth-msg-otp');
+  var msgOrder = document.getElementById('auth-msg-order');
+  var orderSummaryTxt = document.getElementById('order-summary-txt');
+  var userChip = document.getElementById('user-chip');
+  var userAv = document.getElementById('user-av');
+  var userName = document.getElementById('user-name');
+
+  /* ---------- Menu mobile (placeholder simple) ---------- */
+  // (pas de menu burger fonctionnel pour l'instant, liens masqués en mobile)
+
+  /* ---------- Modal open/close ---------- */
+  function openAuthModal(mode){
+    authModal.classList.add('open');
+    authModal.setAttribute('aria-hidden','false');
+    if (session.accessToken && mode === 'order'){
+      showOrderStep();
+    } else if (session.accessToken){
+      // déjà connecté et pas de commande en cours : ferme direct
+      closeAuthModal();
+    } else {
+      showPhoneStep();
+    }
+  }
+  function closeAuthModal(){
+    authModal.classList.remove('open');
+    authModal.setAttribute('aria-hidden','true');
+  }
+  document.getElementById('auth-modal-close').addEventListener('click', closeAuthModal);
+  authModal.addEventListener('click', function(e){ if (e.target === authModal) closeAuthModal(); });
+
+  function showPhoneStep(){
+    stepPhone.style.display=''; stepOtp.style.display='none'; stepOrder.style.display='none';
+    msgPhone.textContent=''; msgOtp.textContent='';
+  }
+  function showOtpStep(){
+    stepPhone.style.display='none'; stepOtp.style.display=''; stepOrder.style.display='none';
+  }
+  function showOrderStep(){
+    stepPhone.style.display='none'; stepOtp.style.display='none'; stepOrder.style.display='';
+    var depIdx = parseInt(departSelect.value,10), arrIdx = parseInt(arriveeSelect.value,10);
+    if (isNaN(depIdx) || isNaN(arrIdx) || depIdx===arrIdx){
+      orderSummaryTxt.textContent = 'Choisissez un départ et une arrivée différents dans le simulateur avant de commander.';
+      document.getElementById('modal-confirm-order-btn').disabled = true;
+    } else {
+      var prix = TARIFS[tarifKey(depIdx,arrIdx)];
+      orderSummaryTxt.textContent = QUARTIERS[depIdx].name + ' → ' + QUARTIERS[arrIdx].name +
+        (prix!==undefined ? ' — ' + prix.toLocaleString('fr-FR') + ' FCFA' : ' — tarif non défini pour ce trajet');
+      document.getElementById('modal-confirm-order-btn').disabled = false;
+    }
+  }
+
+  document.getElementById('login-open-link').addEventListener('click', function(){ openAuthModal('login'); });
+  document.getElementById('order-open-link-top').addEventListener('click', function(){ openAuthModal('order'); });
+  document.getElementById('order-open-link-calc').addEventListener('click', function(){ openAuthModal('order'); });
+  document.getElementById('auth-back-btn').addEventListener('click', showPhoneStep);
+
+  document.querySelectorAll('.cat-card[data-type]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      pendingOrderType = btn.getAttribute('data-type');
+      typeSelect.value = pendingOrderType;
+      document.getElementById('zones').scrollIntoView({behavior:'smooth'});
+    });
+  });
+
+  /* ---------- Envoi OTP ---------- */
+  document.getElementById('modal-send-otp-btn').addEventListener('click', function(){
+    var tel = (modalTel.value||'').trim();
+    if (!tel){ msgPhone.textContent = 'Merci de renseigner votre numéro.'; return; }
+    msgPhone.textContent = 'Envoi du code...';
+    fetch(API_BASE_URL+'/auth/send-otp', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ telephone: tel })
+    }).then(function(r){return r.json();}).then(function(data){
+      if (data.success){
+        document.getElementById('auth-otp-sub').textContent = 'Code envoyé au ' + tel + '.';
+        showOtpStep();
+      } else {
+        msgPhone.textContent = data.error || 'Échec de l\u2019envoi du code.';
+      }
+    }).catch(function(){ msgPhone.textContent = 'Erreur réseau.'; });
+  });
+
+  /* ---------- Vérification OTP ---------- */
+  document.getElementById('modal-verify-btn').addEventListener('click', function(){
+    var tel = (modalTel.value||'').trim();
+    var nom = (modalNom.value||'').trim();
+    var code = (modalOtp.value||'').trim();
+    if (!nom || !code){ msgOtp.textContent = 'Merci de renseigner votre nom et le code reçu.'; return; }
+    msgOtp.textContent = 'Vérification...';
+    fetch(API_BASE_URL+'/auth/verify-otp', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ telephone: tel, code: code, role:'client', nom: nom })
+    }).then(function(r){return r.json();}).then(function(data){
+      if (!data.success){ msgOtp.textContent = data.error || 'Code incorrect ou expiré.'; return; }
+      session.accessToken = data.access_token;
+      session.user = data.user;
+      updateUserChip(nom);
+      showOrderStep();
+    }).catch(function(){ msgOtp.textContent = 'Erreur réseau.'; });
+  });
+
+  function updateUserChip(nom){
+    userChip.style.display = 'inline-flex';
+    userAv.textContent = (nom||'?').trim().charAt(0).toUpperCase();
+    userName.textContent = nom;
+  }
+
+  /* ---------- Confirmation commande ---------- */
+  document.getElementById('modal-confirm-order-btn').addEventListener('click', function(){
+    var depIdx = parseInt(departSelect.value,10), arrIdx = parseInt(arriveeSelect.value,10);
+    var depart = QUARTIERS[depIdx], arrivee = QUARTIERS[arrIdx];
+    msgOrder.textContent = 'Création de la commande...';
+    fetch(API_BASE_URL+'/courses', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.accessToken},
+      body: JSON.stringify({
+        type: typeSelect.value,
+        point_depart: { latitude: depart.lat, longitude: depart.lon },
+        point_arrivee: { latitude: arrivee.lat, longitude: arrivee.lon },
+        mode_paiement: 'cash'
+      })
+    }).then(function(r){return r.json();}).then(function(res){
+      if (res.success){
+        msgOrder.textContent = 'Commande créée' + (res.prix ? ' — ' + res.prix.toLocaleString('fr-FR') + ' FCFA' : '') + '. Suivez-la depuis l\u2019application.';
+        setTimeout(closeAuthModal, 2200);
+      } else {
+        msgOrder.textContent = res.error || 'Échec de la création de la commande.';
+      }
+    }).catch(function(){ msgOrder.textContent = 'Erreur réseau lors de la création.'; });
+  });
+
+  /* ---------- Simulateur / carte ---------- */
+  function tarifKey(d,a){ return QUARTIERS[d].id + '__' + QUARTIERS[a].id; }
+
+  function buildOptions(sel){
+    sel.innerHTML = '';
+    QUARTIERS.forEach(function(q,i){
+      var opt = document.createElement('option'); opt.value=i; opt.textContent=q.name; sel.appendChild(opt);
+    });
+  }
+  function syncPair(fromSel, toSel){ toSel.value = fromSel.value; }
+
+  function recalc(){
+    var depIdx = parseInt(departSelect.value,10), arrIdx = parseInt(arriveeSelect.value,10);
+    if (isNaN(depIdx) || isNaN(arrIdx)) return;
+    paintMap(depIdx, arrIdx);
+    if (depIdx===arrIdx){
+      priceOut.textContent='—'; noteOut.textContent='Choisissez deux quartiers différents.';
+      mapHint.textContent = QUARTIERS[depIdx].name; return;
+    }
+    var prix = TARIFS[tarifKey(depIdx,arrIdx)];
+    if (prix===undefined){ priceOut.textContent='—'; noteOut.textContent='Tarif non défini pour ce trajet, contactez-nous.'; }
+    else { priceOut.textContent = prix.toLocaleString('fr-FR')+' FCFA'; noteOut.textContent='Tarif fixe pour ce trajet.'; }
+    mapHint.textContent = QUARTIERS[depIdx].name+' → '+QUARTIERS[arrIdx].name;
+    heroDepart.value = departSelect.value; heroArrivee.value = arriveeSelect.value;
+  }
+
+  function paintMap(depIdx, arrIdx){
+    markers.forEach(function(m,i){
+      var color = i===depIdx ? '#1f9d63' : (i===arrIdx ? '#d3392f' : '#ff6b00');
+      m.setStyle({ fillColor: color, color:'#181611' });
+    });
+  }
+
+  function initMap(){
+    if (!window.L) return;
+    map = L.map('quartiers-map', { scrollWheelZoom:false });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors', maxZoom:19
+    }).addTo(map);
+    var bounds = [];
+    markers = QUARTIERS.map(function(q,i){
+      var m = L.circleMarker([q.lat,q.lon], { radius:7, fillColor:'#ff6b00', fillOpacity:.85, color:'#181611', weight:1.5 }).addTo(map);
+      m.bindTooltip(q.name, { sticky:true });
+      m.on('click', function(){
+        if (map._pickingArrivee){ arriveeSelect.value = i; map._pickingArrivee=false; }
+        else { departSelect.value = i; map._pickingArrivee = true; }
+        recalc();
+      });
+      bounds.push([q.lat,q.lon]);
+      return m;
+    });
+    if (bounds.length) map.fitBounds(bounds, { padding:[20,20] });
+  }
+
+  departSelect.addEventListener('change', recalc);
+  arriveeSelect.addEventListener('change', recalc);
+  heroDepart.addEventListener('change', function(){ departSelect.value = heroDepart.value; recalc(); });
+  heroArrivee.addEventListener('change', function(){ arriveeSelect.value = heroArrivee.value; recalc(); });
+  document.getElementById('hero-go-btn').addEventListener('click', function(){
+    document.getElementById('zones').scrollIntoView({behavior:'smooth'});
+  });
+
+  function initUI(){
+    buildOptions(departSelect); buildOptions(arriveeSelect); buildOptions(heroDepart); buildOptions(heroArrivee);
+    departSelect.selectedIndex = 0; arriveeSelect.selectedIndex = Math.min(1, QUARTIERS.length-1);
+    heroDepart.selectedIndex = 0; heroArrivee.selectedIndex = Math.min(1, QUARTIERS.length-1);
+    statZones.textContent = QUARTIERS.length;
+    initMap();
+    recalc();
+  }
+
+  fetch(API_BASE_URL+'/public/zones-tarifs')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      QUARTIERS = (data.zones||[]).map(function(z){ return { id:z.id, name:z.nom, lat:z.latitude, lon:z.longitude }; })
+        .sort(function(a,b){ return a.name.localeCompare(b.name,'fr'); });
+      (data.tarifs||[]).forEach(function(t){ TARIFS[t.zone_depart_id+'__'+t.zone_arrivee_id] = t.prix; });
+      initUI();
+    })
+    .catch(function(){ noteOut.textContent = 'Impossible de charger les zones pour le moment.'; statZones.textContent='—'; });
+})();
+</script>
+
+</body>
+</html>
